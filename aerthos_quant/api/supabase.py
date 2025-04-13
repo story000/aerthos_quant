@@ -14,8 +14,19 @@ _client: Client = create_client(_SUPABASE_URL, _SUPABASE_KEY)
 def get_supabase_client() -> Client:
     return _client
 
-def fetch_table(table_name: str):
-    return _client.table(table_name).select("*").execute().data
+def fetch_table(table_name: str) -> list[dict]:
+    """
+    获取指定表的数据
+    
+    参数:
+        table_name: 表名
+    
+    返回:
+        表数据列表
+    """
+    query = _client.table(table_name).select("*")
+    
+    return query.execute().data
 
 def insert_data(table_name: str, data: dict):
     return _client.table(table_name).insert(data).execute().data
