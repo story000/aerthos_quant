@@ -1,6 +1,8 @@
 from supabase import create_client, Client
 from dotenv import load_dotenv
+from datetime import datetime
 import os
+
 load_dotenv()
 _SUPABASE_URL = os.getenv("SUPABASE_URL")
 _SUPABASE_KEY = os.getenv("SUPABASE_KEY")
@@ -29,4 +31,11 @@ def fetch_table(table_name: str) -> list[dict]:
     return query.execute().data
 
 def insert_data(table_name: str, data: dict):
+    """
+    插入数据到指定表。自动添加 update_time 字段
+    
+    参数:
+        table_name: 表名
+        data: 要插入的数据字典列表
+    """
     return _client.table(table_name).insert(data).execute().data
