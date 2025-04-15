@@ -12,4 +12,6 @@ def data(param: str, supabase: Client = Depends(provide_supabase_client)):
     该函数使用 Supabase 客户端从数据库中获取数据。
     """
     result = fetch_table(param.lower())
+    if "carbon" in param:
+        result.sort(key=lambda x: x['Date'])
     return result

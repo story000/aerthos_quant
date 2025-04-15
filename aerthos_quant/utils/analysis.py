@@ -8,6 +8,7 @@ import openai
 import litellm
 import requests
 from bs4 import BeautifulSoup
+from aerthos_quant.api.supabase import fetch_table
 
 def calculate_mean_gap(predictions_file, eua_file, output_file):
     in_put = pd.read_csv(predictions_file)
@@ -233,8 +234,9 @@ def create_gauge_chart(ax, title,value):
     ax.text(0.5, 0.3, sections[value // 20], ha='center', fontsize=14, transform=ax.transAxes)
 
 def get_latest_price():
-    price = pd.read_csv('backend/data/latest_price.csv')
-    return price['Price'].values[-1]
+    price = fetch_table('carbon')
+    price = sorted(price, key=lambda x: x['Date'], reverse=True)
+    return price[0]['Price']
 
 def create_gauge_dashboard(latest_price_file, predictions_file, output_file):
     # Example usage to create a dashboard with multiple gauges
@@ -277,7 +279,7 @@ def plot_predictions(file_path, output_file):
     
     latest_price = get_latest_price()
     trade_decision(latest_price, new_predictions.iloc[0, 1:], new_predictions.columns[1:].tolist(), 0.95, output_file)
-    get_ai_suggestions(new_predictions.iloc[0, 1:])
+    #get_ai_suggestions(new_predictions.iloc[0, 1:])
     
     
 def trade_decision(price, predictions, list_days, prudence_level, output_file):
@@ -328,16 +330,9 @@ def trade_decision(price, predictions, list_days, prudence_level, output_file):
     except Exception as e:
         return decision, None
 
-def copy_files_to_destination(source_dir='result', destination_dir='../frontend/public/pics'):
-    os.makedirs(destination_dir, exist_ok=True)
-
-    for filename in os.listdir(source_dir):
-        full_file_name = os.path.join(source_dir, filename)
-        if os.path.isfile(full_file_name):
-            shutil.copy(full_file_name, destination_dir)
 
 def get_ai_suggestions(predictions):
-    history_price = pd.read_csv('backend/data/latest_price.csv')['Price']
+    history_price = get_latest_price()
 
     client = openai.OpenAI(
         api_key="sk--u59udu5B3LF6Wheot0vXA",
@@ -458,16 +453,12 @@ def get_opinions(output_file):
     df.to_csv(output_file, index=False, encoding='utf-8-sig')
 
 
-calculate_mean_gap('backend/data/model_predictions.csv', 'backend/data/Carbon Emissions Futures Historical Data.csv', 'backend/result/mean_gap_plot.png')
-plot_actual_vs_predicted('backend/data/model_predictions.csv','backend/result/actual_vs_predicted_plot.png',0)
 
-create_gauge_dashboard('backend/data/latest_price.csv', 'backend/data/predictions.csv', 'backend/result/indicators_dashboard.png')
+#create_gauge_dashboard('backend/data/latest_price.csv', 'backend/data/predictions.csv', 'backend/result/indicators_dashboard.png')
 
-plot_predictions('backend/data/predictions.csv', 'backend/result/predictions_plot.png')
+plot_predictions('data/processed/predictions.csv', 'aerthos_quant/predictions/predictions_plot.png')
 
-get_opinions('backend/result/opinions.csv')
+# get_opinions('backend/result/opinions.csv')
 
-signals = generate_signals(pd.read_csv('backend/data/latest_price.csv'))
-signals.to_csv('backend/result/signals.csv', index=False)
-
-copy_files_to_destination('backend/result', 'frontend/public/pics')
+# signals = generate_signals(pd.read_csv('backend/data/latest_price.csv'))
+# signals.to_csv('backend/result/signals.csv', index=False)

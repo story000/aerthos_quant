@@ -179,12 +179,11 @@ def predict_prices(test_X, prediction_file_path):
     # Save prediction results to CSV file
     prediction_results.to_csv(prediction_file_path)
 
+def predict_prices_from_file(file_path):
+    prediction_file_path = file_path
 
+    train_Y, train_X, predict_Y, predict_X = preprocess_data_train()
+    model_train(train_Y, train_X)
 
-prediction_file_path = "../data/processed/predictions.csv"
-
-train_Y, train_X, predict_Y, predict_X = preprocess_data_train()
-model_train(train_Y, train_X)
-
-predict_prices(predict_X, prediction_file_path)
+    predict_prices(predict_X, prediction_file_path)
 
