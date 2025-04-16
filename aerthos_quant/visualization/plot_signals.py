@@ -26,4 +26,3 @@ def plot_with_mplfinance(df, signal_type='signal_rsi', save_path=None):
         warn_too_much_data=len(df) + 1000,
         savefig=save_path
     )
-    plt.savefig(save_path)
