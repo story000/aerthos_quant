@@ -7,3 +7,4 @@ if __name__ == "__main__":
     obs_loader.load_to_supabase()
     predict.predict_prices_from_file('data/processed/predictions.csv')
     plot_predictions('data/processed/predictions.csv', 'aerthos_quant/predictions/predictions_plot.png')
+    print("数据更新完成")

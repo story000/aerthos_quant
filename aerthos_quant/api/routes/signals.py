@@ -1,13 +1,22 @@
 from fastapi import APIRouter, Query
 from typing import List, Optional
-from aerthos_quant.strategies.signal_generator import generate_signals
-
+from aerthos_quant.strategies.signal_generator import Signal_Generator
+import os
+from fastapi.responses import JSONResponse
 router = APIRouter()
 
 @router.get("/")
-def get_signals(symbols: Optional[List[str]] = Query(default=None, description="可选的股票代码列表")):
-    """
-    返回一组交易信号。如果传入 symbols，则只返回相关标的的信号。
-    """
-    signals = generate_signals(symbols)
-    return {"signals": signals}
+def get_signals():
+    df = Buy_Signal_Generator()
+    df['Date'] = df.index.strftime("%Y-%m-%d")
+   
+    return df.fillna("").to_dict(orient="records")
+
+
+@router.get("/list_pics")
+def list_pictures():
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "predictions", "pics"))
+    if not os.path.exists(base_dir):
+        return JSONResponse([], status_code=200)
+    filenames = [f for f in os.listdir(base_dir) if f.endswith(".png")]
+    return JSONResponse(filenames)
